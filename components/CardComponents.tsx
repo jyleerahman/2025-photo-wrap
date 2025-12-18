@@ -813,6 +813,103 @@ const peakMonthStyles = StyleSheet.create({
   },
 });
 
+export function MostExploredMonthCard({ card }: CardProps) {
+  const { month, distinctPlaces, assetIds = [] } = card.payload;
+  const [uris, setUris] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    loadImages();
+  }, []);
+
+  async function loadImages() {
+    const loaded: string[] = [];
+    for (const assetId of assetIds.slice(0, 6)) {
+      try {
+        const info = await MediaLibrary.getAssetInfoAsync(assetId);
+        if (info.localUri) {
+          loaded.push(info.localUri);
+        }
+      } catch (error) {
+        console.warn('Failed to load image:', error);
+      }
+    }
+    setUris(loaded);
+  }
+
+  return (
+    <CardFrame variant="dark">
+      <View style={mostExploredStyles.content}>
+        <DecorativeHeader subtitle="MOST EXPLORED MONTH" variant="dark" />
+        
+        <Text style={mostExploredStyles.month}>{month.toUpperCase()}</Text>
+        
+        <View style={mostExploredStyles.statRow}>
+          <Text style={mostExploredStyles.statNumber}>{distinctPlaces}</Text>
+          <Text style={mostExploredStyles.statLabel}>distinct places</Text>
+        </View>
+        
+        <DecorativeDivider width={100} variant="dark" />
+        
+        {uris.length > 0 && (
+          <View style={mostExploredStyles.photoGrid}>
+            {uris.map((uri, index) => (
+              <View key={index} style={mostExploredStyles.photoWrapper}>
+                <ExpoImage source={{ uri }} style={mostExploredStyles.photo} contentFit="cover" />
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+    </CardFrame>
+  );
+}
+
+const mostExploredStyles = StyleSheet.create({
+  content: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  month: {
+    ...typography.display,
+    color: DecoColors.gold,
+    textAlign: 'center',
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  statNumber: {
+    ...typography.statNumber,
+    color: DecoColors.gold,
+  },
+  statLabel: {
+    ...typography.statLabel,
+    color: DecoColors.ivory,
+    opacity: 0.8,
+  },
+  photoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    width: '100%',
+  },
+  photoWrapper: {
+    width: '30%',
+    aspectRatio: 1,
+    borderRadius: chamfer.sm,
+    overflow: 'hidden',
+    borderWidth: stroke.hairline,
+    borderColor: DecoColors.gold,
+  },
+  photo: {
+    width: '100%',
+    height: '100%',
+  },
+});
+
 export function TimeOfDayCard({ card }: CardProps) {
   const { window, assetIds = [] } = card.payload;
   const [uris, setUris] = React.useState<string[]>([]);

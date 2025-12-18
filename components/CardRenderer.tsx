@@ -7,6 +7,7 @@ import {
   TopPlaces23Card,
   PeakDayCard,
   PeakMonthCard,
+  MostExploredMonthCard,
   TimeOfDayCard,
   DistinctPlacesCard,
   CollageCard,
@@ -32,6 +33,8 @@ export function CardRenderer({ card, places, onPlacePress }: CardRendererProps) 
       return <PeakDayCard card={card} />;
     case 'peakMonth':
       return <PeakMonthCard card={card} />;
+    case 'mostExploredMonth':
+      return <MostExploredMonthCard card={card} />;
     case 'timeOfDay':
       return <TimeOfDayCard card={card} />;
     case 'distinctPlaces':

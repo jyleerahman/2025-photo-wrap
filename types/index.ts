@@ -40,6 +40,7 @@ export type CardType =
   | 'topPlaces23'
   | 'peakDay'
   | 'peakMonth'
+  | 'mostExploredMonth'
   | 'timeOfDay'
   | 'distinctPlaces'
   | 'newPlace'

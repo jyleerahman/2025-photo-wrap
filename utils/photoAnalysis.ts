@@ -45,32 +45,60 @@ export async function scanPhotos(timeRange: TimeRange): Promise<{
   };
 }
 
-export async function getAssetsWithLocation(assetIds: string[]): Promise<
+export async function getAssetsWithLocation(
+  assetIds: string[],
+  onProgress?: (processed: number, total: number) => void
+): Promise<
   Array<{
     assetId: string;
     location: { latitude: number; longitude: number };
     creationTime: number;
   }>
 > {
-  const results = [];
+  const results: Array<{
+    assetId: string;
+    location: { latitude: number; longitude: number };
+    creationTime: number;
+  }> = [];
   
-  for (const assetId of assetIds) {
-    try {
-      const info = await MediaLibrary.getAssetInfoAsync(assetId);
-      if (info.location) {
-        results.push({
-          assetId,
-          location: {
-            latitude: info.location.latitude,
-            longitude: info.location.longitude,
-          },
-          creationTime: info.creationTime,
-        });
+  const BATCH_SIZE = 20; // Process 20 photos in parallel at a time
+  const total = assetIds.length;
+  let processed = 0;
+  
+  for (let i = 0; i < assetIds.length; i += BATCH_SIZE) {
+    const batch = assetIds.slice(i, i + BATCH_SIZE);
+    
+    const batchResults = await Promise.all(
+      batch.map(async (assetId) => {
+        try {
+          const info = await MediaLibrary.getAssetInfoAsync(assetId);
+          if (info.location) {
+            return {
+              assetId,
+              location: {
+                latitude: info.location.latitude,
+                longitude: info.location.longitude,
+              },
+              creationTime: info.creationTime,
+            };
+          }
+        } catch (error) {
+          // Skip assets that can't be loaded
+          console.warn(`Failed to load asset ${assetId}:`, error);
+        }
+        return null;
+      })
+    );
+    
+    // Filter out nulls and add to results
+    for (const result of batchResults) {
+      if (result) {
+        results.push(result);
       }
-    } catch (error) {
-      // Skip assets that can't be loaded
-      console.warn(`Failed to load asset ${assetId}:`, error);
     }
+    
+    processed += batch.length;
+    onProgress?.(processed, total);
   }
   
   return results;
@@ -163,14 +191,13 @@ function selectRepresentatives(assetIds: string[], k: number): string[] {
 
 export async function computeBestPlaces(
   assets: AssetRef[],
-  wrappedRunId: string
+  wrappedRunId: string,
+  onProgress?: (processed: number, total: number) => void
 ): Promise<PlaceCluster[]> {
-  // Sample a subset for location extraction (to avoid iCloud downloads)
-  const sampleSize = Math.min(500, assets.length);
-  const sampleAssets = assets.slice(0, sampleSize);
-  const assetIds = sampleAssets.map((a) => a.assetId);
+  // Scan ALL photos for location data (parallel batched for performance)
+  const assetIds = assets.map((a) => a.assetId);
 
-  const assetsWithLocation = await getAssetsWithLocation(assetIds);
+  const assetsWithLocation = await getAssetsWithLocation(assetIds, onProgress);
   
   if (assetsWithLocation.length < MIN_PHOTOS_PER_PLACE) {
     return [];
@@ -316,5 +343,69 @@ function getTimeOfDayLabel(hour: number): string {
   if (hour >= 12 && hour < 17) return 'afternoon';
   if (hour >= 17 && hour < 21) return 'evening';
   return 'night';
+}
+
+export function computeMostExploredMonth(
+  assetsWithLocation: Array<{
+    assetId: string;
+    location: { latitude: number; longitude: number };
+    creationTime: number;
+  }>
+): {
+  month: string;
+  distinctPlaces: number;
+  assetIds: string[];
+} | null {
+  if (assetsWithLocation.length === 0) return null;
+
+  // Track distinct grid cells per month
+  const monthPlaces = new Map<string, {
+    gridCells: Set<string>;
+    assetIds: string[];
+  }>();
+
+  for (const asset of assetsWithLocation) {
+    const date = new Date(asset.creationTime);
+    const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+    
+    // Quantize to grid cells (same logic as gridClustering)
+    const latStep = 120 / 111320;
+    const lonStep = 120 / (111320 * Math.cos((asset.location.latitude * Math.PI) / 180));
+    const cellLat = Math.floor(asset.location.latitude / latStep);
+    const cellLon = Math.floor(asset.location.longitude / lonStep);
+    const cellKey = `${cellLat},${cellLon}`;
+
+    if (!monthPlaces.has(monthKey)) {
+      monthPlaces.set(monthKey, { gridCells: new Set(), assetIds: [] });
+    }
+    
+    const monthData = monthPlaces.get(monthKey)!;
+    monthData.gridCells.add(cellKey);
+    monthData.assetIds.push(asset.assetId);
+  }
+
+  // Find the month with most distinct places
+  let mostExplored: { monthKey: string; distinctPlaces: number; assetIds: string[] } | null = null;
+  
+  for (const [monthKey, data] of monthPlaces.entries()) {
+    if (!mostExplored || data.gridCells.size > mostExplored.distinctPlaces) {
+      mostExplored = {
+        monthKey,
+        distinctPlaces: data.gridCells.size,
+        assetIds: data.assetIds,
+      };
+    }
+  }
+
+  if (!mostExplored) return null;
+
+  const [year, month] = mostExplored.monthKey.split('-');
+  const date = new Date(parseInt(year), parseInt(month));
+  
+  return {
+    month: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+    distinctPlaces: mostExplored.distinctPlaces,
+    assetIds: mostExplored.assetIds,
+  };
 }
 

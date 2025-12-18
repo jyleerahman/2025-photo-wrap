@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as MediaLibrary from 'expo-media-library';
-import { scanPhotos, computeBestPlaces, computeTimeStats, reverseGeocodePlace } from '@/utils/photoAnalysis';
+import { scanPhotos, computeBestPlaces, computeTimeStats, reverseGeocodePlace, getAssetsWithLocation, computeMostExploredMonth } from '@/utils/photoAnalysis';
 import { initDatabase, saveWrappedRun, savePlaceCluster, saveCardModel, getPlaceClusters, ALGORITHM_VERSION } from '@/utils/database';
 import type { ProcessingStage, PhotoAccess, WrappedRun, PlaceCluster, CardModel } from '@/types';
 import { DecoColors } from '@/constants/Colors';
@@ -216,8 +216,11 @@ export default function ProcessingScreen() {
 
       // Stage B: Best Places
       setStage('places');
-      setProgress('Finding your favorite places...');
-      const places = await computeBestPlaces(assets, wrappedRunId);
+      setProgress('Extracting location data...');
+      const places = await computeBestPlaces(assets, wrappedRunId, (processed, total) => {
+        const pct = Math.round((processed / total) * 100);
+        setProgress(`Analyzing locations... ${pct}%`);
+      });
 
       // Update location stats
       const actualLocationAssets = places.reduce((sum, p) => sum + p.photoCount, 0);

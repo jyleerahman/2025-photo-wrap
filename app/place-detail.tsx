@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image as ExpoImage } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
 import { getPlaceClusters, hidePlace } from '@/utils/database';
+import { PhotoLightbox } from '@/components/PhotoLightbox';
 import type { PlaceCluster } from '@/types';
 import { DecoColors } from '@/constants/Colors';
 import { typography, spacing, chamfer, stroke, shadows } from '@/constants/theme';
@@ -21,6 +22,7 @@ export default function PlaceDetailScreen() {
   const [place, setPlace] = useState<PlaceCluster | null>(null);
   const [imageUris, setImageUris] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     loadPlace();
@@ -127,13 +129,20 @@ export default function PlaceDetailScreen() {
           
           <View style={styles.imageGrid}>
             {imageUris.map((uri, index) => (
-              <View key={index} style={styles.imageWrapper}>
+              <Pressable 
+                key={index} 
+                style={({ pressed }) => [
+                  styles.imageWrapper,
+                  pressed && styles.imagePressed,
+                ]}
+                onPress={() => setSelectedPhoto(uri)}
+              >
                 <ExpoImage
                   source={{ uri }}
                   style={styles.image}
                   contentFit="cover"
                 />
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>
@@ -170,6 +179,13 @@ export default function PlaceDetailScreen() {
           <View style={styles.bottomLine} />
         </View>
       </ScrollView>
+
+      {/* Photo Lightbox */}
+      <PhotoLightbox
+        visible={selectedPhoto !== null}
+        uri={selectedPhoto}
+        onClose={() => setSelectedPhoto(null)}
+      />
     </View>
   );
 }
@@ -322,6 +338,11 @@ const styles = StyleSheet.create({
     borderColor: DecoColors.stroke.subtle,
     borderRadius: chamfer.sm,
     overflow: 'hidden',
+  },
+  imagePressed: {
+    opacity: 0.7,
+    borderColor: DecoColors.mint,
+    borderWidth: stroke.standard,
   },
   image: {
     width: '100%',
