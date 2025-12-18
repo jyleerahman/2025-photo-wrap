@@ -302,7 +302,7 @@ export default function ProcessingScreen() {
     });
 
     // Card 2: Trust / coverage
-    const trustPhotos = selectRepresentatives(timeStats.allAssetIds, 6);
+    const trustPhotos = selectRepresentatives(timeStats.allAssetIds, 9);
     cards.push({
       id: `card_${order++}`,
       wrappedRunId,
@@ -335,7 +335,7 @@ export default function ProcessingScreen() {
 
     // Card 5: Peak day
     if (timeStats.peakDay) {
-      const peakDayPhotos = selectRepresentatives(timeStats.peakDay.assetIds, 6);
+      const peakDayPhotos = selectRepresentatives(timeStats.peakDay.assetIds, 9);
       cards.push({
         id: `card_${order++}`,
         wrappedRunId,
@@ -351,7 +351,7 @@ export default function ProcessingScreen() {
 
     // Card 6: Peak month
     if (timeStats.peakMonth) {
-      const peakMonthPhotos = selectRepresentatives(timeStats.peakMonth.assetIds, 6);
+      const peakMonthPhotos = selectRepresentatives(timeStats.peakMonth.assetIds, 9);
       cards.push({
         id: `card_${order++}`,
         wrappedRunId,
@@ -367,7 +367,7 @@ export default function ProcessingScreen() {
 
     // Card 6b: Most explored month (most distinct places visited)
     if (mostExploredMonth) {
-      const exploredMonthPhotos = selectRepresentatives(mostExploredMonth.assetIds, 6);
+      const exploredMonthPhotos = selectRepresentatives(mostExploredMonth.assetIds, 9);
       cards.push({
         id: `card_${order++}`,
         wrappedRunId,
@@ -383,7 +383,7 @@ export default function ProcessingScreen() {
 
     // Card 7: Time of day
     if (timeStats.timeOfDay) {
-      const timeOfDayPhotos = selectRepresentatives(timeStats.timeOfDay.assetIds, 6);
+      const timeOfDayPhotos = selectRepresentatives(timeStats.timeOfDay.assetIds, 9);
       cards.push({
         id: `card_${order++}`,
         wrappedRunId,
@@ -400,7 +400,7 @@ export default function ProcessingScreen() {
     // Card 8: Distinct places
     if (places.length > 0) {
       const distinctPlacePhotos: string[] = [];
-      for (let i = 0; i < Math.min(places.length, 6); i++) {
+      for (let i = 0; i < Math.min(places.length, 9); i++) {
         const place = places[i];
         if (place.representativeAssetIds.length > 0) {
           distinctPlacePhotos.push(place.representativeAssetIds[0]);

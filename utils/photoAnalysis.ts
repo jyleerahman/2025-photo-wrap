@@ -294,7 +294,10 @@ export async function reverseGeocodePlace(
     console.log(`[DEBUG] Geocode result:`, JSON.stringify(result, null, 2));
     if (result.length > 0) {
       const addr = result[0];
-      // Prefer neighborhood/district, then city, then region
+      // Prefer most specific location: neighborhood (subLocality) first, then district, city, etc.
+      if (addr.subLocality) {
+        return addr.subLocality;
+      }
       if (addr.district) {
         return addr.district;
       }
