@@ -297,7 +297,7 @@ export function TrustCard({ card, onPhotoPress }: CardProps) {
 
   async function loadImages() {
     const loaded: string[] = [];
-    for (const assetId of assetIds.slice(0, 6)) {
+    for (const assetId of assetIds.slice(0, 9)) {
       try {
         const info = await MediaLibrary.getAssetInfoAsync(assetId);
         if (info.localUri) {
@@ -674,7 +674,7 @@ export function PeakDayCard({ card, onPhotoPress }: CardProps) {
 
   async function loadImages() {
     const loaded: string[] = [];
-    for (const assetId of assetIds.slice(0, 6)) {
+    for (const assetId of assetIds.slice(0, 9)) {
       try {
         const info = await MediaLibrary.getAssetInfoAsync(assetId);
         if (info.localUri) {
@@ -766,7 +766,7 @@ export function PeakMonthCard({ card, onPhotoPress }: CardProps) {
 
   async function loadImages() {
     const loaded: string[] = [];
-    for (const assetId of assetIds.slice(0, 6)) {
+    for (const assetId of assetIds.slice(0, 9)) {
       try {
         const info = await MediaLibrary.getAssetInfoAsync(assetId);
         if (info.localUri) {
@@ -847,7 +847,7 @@ export function MostExploredMonthCard({ card, onPhotoPress }: CardProps) {
 
   async function loadImages() {
     const loaded: string[] = [];
-    for (const assetId of assetIds.slice(0, 6)) {
+    for (const assetId of assetIds.slice(0, 9)) {
       try {
         const info = await MediaLibrary.getAssetInfoAsync(assetId);
         if (info.localUri) {
@@ -950,7 +950,7 @@ export function TimeOfDayCard({ card, onPhotoPress }: CardProps) {
 
   async function loadImages() {
     const loaded: string[] = [];
-    for (const assetId of assetIds.slice(0, 6)) {
+    for (const assetId of assetIds.slice(0, 9)) {
       try {
         const info = await MediaLibrary.getAssetInfoAsync(assetId);
         if (info.localUri) {
@@ -1032,7 +1032,7 @@ export function DistinctPlacesCard({ card, onPhotoPress }: CardProps) {
 
   async function loadImages() {
     const loaded: string[] = [];
-    for (const assetId of assetIds.slice(0, 6)) {
+    for (const assetId of assetIds.slice(0, 9)) {
       try {
         const info = await MediaLibrary.getAssetInfoAsync(assetId);
         if (info.localUri) {
