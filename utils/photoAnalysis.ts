@@ -95,10 +95,10 @@ export async function getAssetsWithLocation(
     const batchResults = await Promise.all(
       batch.map(async (assetId) => {
         try {
-          // shouldDownloadFromNetwork: true fetches metadata from iCloud if not local
-          const info = await MediaLibrary.getAssetInfoAsync(assetId, {
-            shouldDownloadFromNetwork: true,
-          });
+          // Try without shouldDownloadFromNetwork first - it might cause issues with location access
+          // Note: This means we won't get data for iCloud-only photos, but it might help us see
+          // if the issue is with the network fetch or fundamental permission/API issue
+          const info = await MediaLibrary.getAssetInfoAsync(assetId);
           
           // Debug first few assets
           if (i === 0 && batch.indexOf(assetId) < 3) {
@@ -106,8 +106,14 @@ export async function getAssetsWithLocation(
           }
           
           if (info.location) {
-            const lat = info.location.latitude;
-            const lon = info.location.longitude;
+            // expo-media-library sometimes returns coordinates as strings, not numbers
+            const lat = typeof info.location.latitude === 'string' 
+              ? parseFloat(info.location.latitude) 
+              : info.location.latitude;
+            const lon = typeof info.location.longitude === 'string' 
+              ? parseFloat(info.location.longitude) 
+              : info.location.longitude;
+            
             // Validate coordinates are real numbers
             if (Number.isFinite(lat) && Number.isFinite(lon)) {
               successCount++;
