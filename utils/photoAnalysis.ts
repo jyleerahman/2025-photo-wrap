@@ -133,7 +133,7 @@ function gridClustering(
         centroidLon: cell.centroidLon,
         photoCount: cell.assetIds.length,
         distinctDaysCount: cell.days.size,
-        label: `Location ${clusterId}`, // Will be geocoded later
+        label: 'Unknown Place', // Will be geocoded later
         labelConfidence: 'low',
         representativeAssetIds: selectRepresentatives(cell.assetIds, 9),
         isHidden: false,
@@ -194,9 +194,12 @@ export async function reverseGeocodePlace(
     const result = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lon });
     if (result.length > 0) {
       const addr = result[0];
-      // Prefer neighborhood/city, avoid street address
-      if (addr.district || addr.subAdministrativeArea) {
-        return addr.district || addr.subAdministrativeArea || '';
+      // Prefer neighborhood/district, then city, then region
+      if (addr.district) {
+        return addr.district;
+      }
+      if (addr.subregion) {
+        return addr.subregion;
       }
       if (addr.city) {
         return addr.city;
@@ -204,12 +207,15 @@ export async function reverseGeocodePlace(
       if (addr.region) {
         return addr.region;
       }
+      if (addr.country) {
+        return addr.country;
+      }
     }
   } catch (error) {
     console.warn('Reverse geocoding failed:', error);
   }
   
-  return `Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+  return 'Unknown Place';
 }
 
 export function computeTimeStats(assets: AssetRef[]): {

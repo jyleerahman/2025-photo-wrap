@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
 import type { CardModel, PlaceCluster } from '@/types';
@@ -19,14 +19,19 @@ interface CardProps {
 // DECORATIVE COMPONENTS
 // ============================================================================
 
-function CardFrame({ children, accentColor = DecoColors.gold }: { children: React.ReactNode; accentColor?: string }) {
+function CardFrame({ children, variant = 'dark' }: { children: React.ReactNode; variant?: 'dark' | 'light' }) {
+  const isDark = variant === 'dark';
+  
   return (
-    <View style={frameStyles.outer}>
+    <View style={[
+      frameStyles.outer,
+      isDark ? frameStyles.outerDark : frameStyles.outerLight,
+    ]}>
       {/* Corner ornaments */}
-      <View style={[frameStyles.cornerTL, { borderColor: accentColor }]} />
-      <View style={[frameStyles.cornerTR, { borderColor: accentColor }]} />
-      <View style={[frameStyles.cornerBL, { borderColor: accentColor }]} />
-      <View style={[frameStyles.cornerBR, { borderColor: accentColor }]} />
+      <View style={[frameStyles.cornerTL, isDark ? frameStyles.cornerDark : frameStyles.cornerLight]} />
+      <View style={[frameStyles.cornerTR, isDark ? frameStyles.cornerDark : frameStyles.cornerLight]} />
+      <View style={[frameStyles.cornerBL, isDark ? frameStyles.cornerDark : frameStyles.cornerLight]} />
+      <View style={[frameStyles.cornerBR, isDark ? frameStyles.cornerDark : frameStyles.cornerLight]} />
       
       {/* Inner content frame */}
       <View style={frameStyles.inner}>
@@ -39,12 +44,18 @@ function CardFrame({ children, accentColor = DecoColors.gold }: { children: Reac
 const frameStyles = StyleSheet.create({
   outer: {
     flex: 1,
-    backgroundColor: DecoColors.panel,
     borderWidth: stroke.standard,
-    borderColor: DecoColors.stroke.subtle,
     borderRadius: chamfer.md,
     padding: spacing.lg,
     position: 'relative',
+  },
+  outerDark: {
+    backgroundColor: DecoColors.panel,
+    borderColor: DecoColors.stroke.subtle,
+  },
+  outerLight: {
+    backgroundColor: DecoColors.backgroundLight,
+    borderColor: DecoColors.teal,
   },
   inner: {
     flex: 1,
@@ -88,13 +99,20 @@ const frameStyles = StyleSheet.create({
     borderRightWidth: stroke.standard,
     borderBottomWidth: stroke.standard,
   },
+  cornerDark: {
+    borderColor: DecoColors.mint,
+  },
+  cornerLight: {
+    borderColor: DecoColors.teal,
+  },
 });
 
-function DecorativeDivider({ width = 100 }: { width?: number }) {
+function DecorativeDivider({ width = 100, variant = 'dark' }: { width?: number; variant?: 'dark' | 'light' }) {
+  const color = variant === 'dark' ? DecoColors.mint : DecoColors.teal;
   return (
     <View style={[dividerStyles.container, { width }]}>
-      <View style={dividerStyles.lineTop} />
-      <View style={dividerStyles.lineBottom} />
+      <View style={[dividerStyles.lineTop, { backgroundColor: color }]} />
+      <View style={[dividerStyles.lineBottom, { backgroundColor: color }]} />
     </View>
   );
 }
@@ -106,25 +124,27 @@ const dividerStyles = StyleSheet.create({
   },
   lineTop: {
     height: 1,
-    backgroundColor: DecoColors.gold,
     marginBottom: 4,
   },
   lineBottom: {
     height: 1,
-    backgroundColor: DecoColors.gold,
   },
 });
 
-function DecorativeHeader({ title, subtitle }: { title?: string; subtitle?: string }) {
+function DecorativeHeader({ title, subtitle, variant = 'dark' }: { title?: string; subtitle?: string; variant?: 'dark' | 'light' }) {
+  const accentColor = variant === 'dark' ? DecoColors.mint : DecoColors.teal;
+  const textColor = variant === 'dark' ? DecoColors.text.primary : DecoColors.text.dark;
+  const mutedColor = variant === 'dark' ? DecoColors.text.muted : DecoColors.text.darkMuted;
+  
   return (
     <View style={headerStyles.container}>
       <View style={headerStyles.decor}>
-        <View style={headerStyles.line} />
-        <View style={headerStyles.diamond} />
-        <View style={headerStyles.line} />
+        <View style={[headerStyles.line, { backgroundColor: accentColor }]} />
+        <View style={[headerStyles.diamond, { backgroundColor: accentColor }]} />
+        <View style={[headerStyles.line, { backgroundColor: accentColor }]} />
       </View>
-      {subtitle && <Text style={headerStyles.subtitle}>{subtitle}</Text>}
-      {title && <Text style={headerStyles.title}>{title}</Text>}
+      {subtitle && <Text style={[headerStyles.subtitle, { color: mutedColor }]}>{subtitle}</Text>}
+      {title && <Text style={[headerStyles.title, { color: textColor }]}>{title}</Text>}
     </View>
   );
 }
@@ -142,30 +162,26 @@ const headerStyles = StyleSheet.create({
   line: {
     width: 30,
     height: 1,
-    backgroundColor: DecoColors.gold,
   },
   diamond: {
     width: 6,
     height: 6,
-    backgroundColor: DecoColors.gold,
     transform: [{ rotate: '45deg' }],
     marginHorizontal: spacing.sm,
   },
   subtitle: {
     ...typography.caption,
-    color: DecoColors.text.muted,
     letterSpacing: 2,
     marginBottom: spacing.xs,
   },
   title: {
     ...typography.h2,
-    color: DecoColors.text.primary,
     textAlign: 'center',
   },
 });
 
 // Sunburst background decoration
-function SunburstBackground({ opacity = 0.1 }: { opacity?: number }) {
+function SunburstBackground({ opacity = 0.15, color = DecoColors.mint }: { opacity?: number; color?: string }) {
   return (
     <View style={[sunburstStyles.container, { opacity }]}>
       {[...Array(16)].map((_, i) => (
@@ -173,7 +189,7 @@ function SunburstBackground({ opacity = 0.1 }: { opacity?: number }) {
           key={i}
           style={[
             sunburstStyles.ray,
-            { transform: [{ rotate: `${i * 22.5}deg` }] },
+            { backgroundColor: color, transform: [{ rotate: `${i * 22.5}deg` }] },
           ]}
         />
       ))}
@@ -193,7 +209,6 @@ const sunburstStyles = StyleSheet.create({
     position: 'absolute',
     width: 1,
     height: 150,
-    backgroundColor: DecoColors.gold,
   },
 });
 
@@ -204,17 +219,17 @@ const sunburstStyles = StyleSheet.create({
 export function TitleCard({ card }: CardProps) {
   const year = card.payload.year;
   return (
-    <CardFrame>
-      <SunburstBackground opacity={0.15} />
+    <CardFrame variant="light">
+      <SunburstBackground opacity={0.2} color={DecoColors.teal} />
       
       <View style={titleStyles.content}>
-        <DecorativeHeader />
+        <DecorativeHeader variant="light" />
         
         <Text style={titleStyles.preTitle}>YOUR</Text>
         <Text style={titleStyles.mainTitle}>PHOTO</Text>
         <Text style={titleStyles.mainTitle}>WRAPPED</Text>
         
-        <DecorativeDivider width={120} />
+        <DecorativeDivider width={120} variant="light" />
         
         <Text style={titleStyles.year}>{year}</Text>
         
@@ -236,16 +251,17 @@ const titleStyles = StyleSheet.create({
   },
   preTitle: {
     ...typography.h3,
-    color: DecoColors.text.muted,
+    color: DecoColors.text.darkMuted,
     marginBottom: spacing.xs,
   },
   mainTitle: {
     ...typography.display,
-    color: DecoColors.gold,
+    color: DecoColors.teal,
     lineHeight: 52,
   },
   year: {
     ...typography.heroNumber,
+    color: DecoColors.teal,
     marginTop: spacing.lg,
   },
   bottomDecor: {
@@ -256,15 +272,17 @@ const titleStyles = StyleSheet.create({
   bottomLine: {
     width: 40,
     height: 1,
-    backgroundColor: DecoColors.stroke.subtle,
+    backgroundColor: DecoColors.teal,
+    opacity: 0.4,
   },
   bottomDiamond: {
     width: 8,
     height: 8,
     borderWidth: 1,
-    borderColor: DecoColors.stroke.subtle,
+    borderColor: DecoColors.teal,
     transform: [{ rotate: '45deg' }],
     marginHorizontal: spacing.md,
+    opacity: 0.4,
   },
 });
 
@@ -386,13 +404,13 @@ export function TopPlace1Card({ card, onPlacePress }: CardProps) {
   }
 
   return (
-    <CardFrame accentColor={DecoColors.gold}>
+    <CardFrame variant="light">
       <View style={topPlace1Styles.content}>
-        <DecorativeHeader subtitle="YOUR #1 PLACE" />
+        <DecorativeHeader subtitle="YOUR #1 PLACE" variant="light" />
         
         <Text style={topPlace1Styles.placeName}>{place.label.toUpperCase()}</Text>
         
-        <DecorativeDivider width={100} />
+        <DecorativeDivider width={100} variant="light" />
         
         <View style={topPlace1Styles.statsRow}>
           <View style={topPlace1Styles.stat}>
@@ -427,7 +445,7 @@ const topPlace1Styles = StyleSheet.create({
   },
   placeName: {
     ...typography.h1,
-    color: DecoColors.gold,
+    color: DecoColors.teal,
     textAlign: 'center',
   },
   statsRow: {
@@ -443,25 +461,26 @@ const topPlace1Styles = StyleSheet.create({
     ...typography.heroNumber,
     fontSize: 36,
     lineHeight: 44,
+    color: DecoColors.teal,
   },
   statLabel: {
     ...typography.caption,
-    color: DecoColors.text.muted,
+    color: DecoColors.text.darkMuted,
     letterSpacing: 2,
   },
   statDivider: {
     width: 1,
     height: 40,
-    backgroundColor: DecoColors.stroke.subtle,
+    backgroundColor: DecoColors.teal,
+    opacity: 0.3,
   },
   imageFrame: {
     width: '80%',
     aspectRatio: 1,
     borderWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.teal,
     borderRadius: chamfer.sm,
     overflow: 'hidden',
-    ...shadows.gold,
   },
   image: {
     width: '100%',
@@ -479,7 +498,6 @@ export function TopPlaces23Card({ card }: CardProps) {
   }, []);
 
   async function loadImages() {
-    // Load photos for place 2
     const loaded2: string[] = [];
     for (const assetId of place2.representativeAssetIds.slice(0, 2)) {
       try {
@@ -493,7 +511,6 @@ export function TopPlaces23Card({ card }: CardProps) {
     }
     setPlace2Uris(loaded2);
 
-    // Load photos for place 3
     const loaded3: string[] = [];
     for (const assetId of place3.representativeAssetIds.slice(0, 2)) {
       try {
@@ -535,7 +552,6 @@ export function TopPlaces23Card({ card }: CardProps) {
           )}
         </View>
 
-        {/* Divider */}
         <View style={places23Styles.divider} />
 
         {/* Place 3 */}
@@ -583,7 +599,7 @@ const places23Styles = StyleSheet.create({
   rankBadge: {
     width: 32,
     height: 32,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
     borderRadius: 2,
     transform: [{ rotate: '45deg' }],
     alignItems: 'center',
@@ -593,7 +609,7 @@ const places23Styles = StyleSheet.create({
   rankText: {
     ...typography.caption,
     fontWeight: '600',
-    color: DecoColors.background,
+    color: DecoColors.teal,
     transform: [{ rotate: '-45deg' }],
   },
   placeInfo: {
@@ -656,7 +672,7 @@ export function PeakDayCard({ card }: CardProps) {
   }
 
   return (
-    <CardFrame accentColor={DecoColors.emerald}>
+    <CardFrame>
       <View style={peakDayStyles.content}>
         <DecorativeHeader subtitle="YOUR BIGGEST DAY" />
         
@@ -688,7 +704,6 @@ const peakDayStyles = StyleSheet.create({
   },
   heroNumber: {
     ...typography.heroNumber,
-    color: DecoColors.emerald,
   },
   heroLabel: {
     ...typography.h3,
@@ -745,13 +760,13 @@ export function PeakMonthCard({ card }: CardProps) {
   }
 
   return (
-    <CardFrame accentColor={DecoColors.sapphire}>
+    <CardFrame variant="light">
       <View style={peakMonthStyles.content}>
-        <DecorativeHeader subtitle="BUSIEST MONTH" />
+        <DecorativeHeader subtitle="BUSIEST MONTH" variant="light" />
         
         <Text style={peakMonthStyles.month}>{month.toUpperCase()}</Text>
         
-        <DecorativeDivider width={100} />
+        <DecorativeDivider width={100} variant="light" />
         
         {uris.length > 0 && (
           <View style={peakMonthStyles.photoGrid}>
@@ -774,7 +789,7 @@ const peakMonthStyles = StyleSheet.create({
   },
   month: {
     ...typography.display,
-    color: DecoColors.sapphire,
+    color: DecoColors.teal,
     textAlign: 'center',
   },
   photoGrid: {
@@ -790,7 +805,7 @@ const peakMonthStyles = StyleSheet.create({
     borderRadius: chamfer.sm,
     overflow: 'hidden',
     borderWidth: stroke.hairline,
-    borderColor: DecoColors.stroke.subtle,
+    borderColor: DecoColors.teal,
   },
   photo: {
     width: '100%',
@@ -851,7 +866,7 @@ const timeStyles = StyleSheet.create({
   },
   window: {
     ...typography.h1,
-    color: DecoColors.gold,
+    color: DecoColors.mint,
     textAlign: 'center',
     marginBottom: spacing.sm,
   },
@@ -980,9 +995,9 @@ export function CollageCard({ card }: CardProps) {
   }
 
   return (
-    <CardFrame>
+    <CardFrame variant="light">
       <View style={collageStyles.content}>
-        <DecorativeHeader subtitle="YOUR YEAR IN" title="MOMENTS" />
+        <DecorativeHeader subtitle="YOUR YEAR IN" title="MOMENTS" variant="light" />
         
         <View style={collageStyles.grid}>
           {uris.map((uri, index) => (
@@ -1021,7 +1036,7 @@ const collageStyles = StyleSheet.create({
     borderRadius: chamfer.sm,
     overflow: 'hidden',
     borderWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.teal,
   },
   photo: {
     width: '100%',
@@ -1034,12 +1049,12 @@ const collageStyles = StyleSheet.create({
   bottomLine: {
     width: 50,
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.teal,
   },
   bottomDiamond: {
     width: 10,
     height: 10,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.teal,
     transform: [{ rotate: '45deg' }],
     marginHorizontal: spacing.md,
   },

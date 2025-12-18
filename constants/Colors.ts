@@ -1,54 +1,59 @@
 // Art Deco Color System
-// Inspired by Radio City Music Hall program - mint green with dark teal accents
+// Extracted from Radio City Music Hall program poster
 
 export const DecoColors = {
   // Base colors - the "stage"
-  background: '#1E2D2F',       // Dark teal/charcoal
-  panel: '#263638',            // Slightly lighter panel surfaces
-  backgroundLight: '#A8D4AE',  // Mint green (for alternate cards)
+  background: '#2b2d28',       // Dark charcoal (poster's building color)
+  panel: '#353730',            // Slightly lighter panel surfaces
+  backgroundLight: '#cdd798',  // Sage green (poster's main accent)
   
   // Text hierarchy
   text: {
-    primary: '#F5F0E6',        // Warm cream
-    muted: '#C4CFC6',          // Muted sage
-    dark: '#1E2D2F',           // Dark text for light backgrounds
-    darkMuted: '#4A5E58',      // Muted dark for light backgrounds
+    primary: '#faf1d4',        // Cream (poster's light areas)
+    muted: '#c5c0aa',          // Muted cream
+    dark: '#2b2d28',           // Dark text for light backgrounds
+    darkMuted: '#4a4d46',      // Muted dark for light backgrounds
   },
   
-  // Primary accent - mint/sage green
-  mint: '#A8D4AE',
-  mintLight: '#C5E5C9',
-  mintDark: '#8BC492',
+  // Primary accent - sage green
+  mint: '#cdd798',
+  mintLight: '#dae4a8',
+  mintDark: '#b8c485',
   
-  // Secondary accent - warm cream/gold for highlights
-  cream: '#F5F0E6',
-  gold: '#D4C896',             // Warm gold-cream accent
+  // Secondary accent - olive/tan
+  olive: '#b1a37c',
+  oliveLight: '#c4b894',
+  oliveDark: '#9a8e6a',
+  
+  // Cream accent
+  cream: '#faf1d4',
   
   // Dark accent for emphasis
-  teal: '#1E2D2F',
-  tealLight: '#354A4E',
+  teal: '#2b2d28',
+  tealLight: '#3d3f38',
   
   // Strokes and borders
   stroke: {
-    light: '#A8D4AE',          // Mint stroke
-    dark: '#1E2D2F',           // Dark stroke
-    subtle: '#3A4D4F',         // Subtle dark stroke
-    cream: '#F5F0E6',          // Cream stroke
+    light: '#cdd798',          // Sage stroke
+    dark: '#2b2d28',           // Dark stroke
+    subtle: '#404238',         // Subtle dark stroke
+    cream: '#faf1d4',          // Cream stroke
+    olive: '#b1a37c',          // Olive stroke
   },
   
   // State variations
   states: {
-    hover: 'rgba(168, 212, 174, 0.15)',    // Mint tint for hover
-    pressed: 'rgba(168, 212, 174, 0.25)',  // Mint tint for pressed
-    disabled: 'rgba(245, 240, 230, 0.3)',  // Muted cream for disabled
+    hover: 'rgba(205, 215, 152, 0.15)',    // Sage tint for hover
+    pressed: 'rgba(205, 215, 152, 0.25)',  // Sage tint for pressed
+    disabled: 'rgba(250, 241, 212, 0.3)',  // Muted cream for disabled
   },
 };
 
 // Poster/Export variant - slightly higher contrast for sharing
 export const DecoPosterColors = {
   ...DecoColors,
-  background: '#1A2628',
-  mint: '#9ECC A4',
+  background: '#232520',
+  mint: '#c5cf8a',
 };
 
 // Legacy export for backwards compatibility
@@ -59,10 +64,10 @@ export const PastelColors = {
     white: DecoColors.panel,
   },
   accents: {
-    softPink: DecoColors.mint,
+    softPink: DecoColors.olive,
     oliveGreen: DecoColors.mint,
     lightBlue: DecoColors.tealLight,
-    warmYellow: DecoColors.gold,
+    warmYellow: DecoColors.olive,
   },
   text: {
     darkBrown: DecoColors.text.primary,

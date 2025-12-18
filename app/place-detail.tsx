@@ -155,7 +155,7 @@ export default function PlaceDetailScreen() {
             style={({ pressed }) => [
               styles.button,
               styles.backButton,
-              pressed && styles.buttonPressed,
+              pressed && styles.backButtonPressed,
             ]}
             onPress={() => router.back()}
           >
@@ -201,12 +201,12 @@ const styles = StyleSheet.create({
   decorLine: {
     width: 30,
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
   decorDiamond: {
     width: 8,
     height: 8,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
     transform: [{ rotate: '45deg' }],
     marginHorizontal: spacing.md,
   },
@@ -229,12 +229,12 @@ const styles = StyleSheet.create({
   headerLine: {
     width: 30,
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
   headerDiamond: {
     width: 6,
     height: 6,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
     transform: [{ rotate: '45deg' }],
     marginHorizontal: spacing.sm,
   },
@@ -248,12 +248,12 @@ const styles = StyleSheet.create({
   },
   lineTop: {
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
     marginBottom: 4,
   },
   lineBottom: {
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
 
   // Stats panel
@@ -340,10 +340,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonPressed: {
-    backgroundColor: DecoColors.states.pressed,
+    opacity: 0.8,
   },
   hideButton: {
-    backgroundColor: DecoColors.burgundy,
+    backgroundColor: '#5A3A3A',
     borderWidth: stroke.hairline,
     borderColor: 'rgba(255,255,255,0.1)',
   },
@@ -352,14 +352,17 @@ const styles = StyleSheet.create({
     color: DecoColors.text.primary,
   },
   backButton: {
-    backgroundColor: DecoColors.panel,
+    backgroundColor: DecoColors.mint,
     borderWidth: stroke.standard,
-    borderColor: DecoColors.gold,
-    ...shadows.gold,
+    borderColor: DecoColors.mint,
+    ...shadows.sage,
+  },
+  backButtonPressed: {
+    backgroundColor: DecoColors.mintDark,
   },
   backButtonText: {
     ...typography.button,
-    color: DecoColors.gold,
+    color: DecoColors.teal,
   },
 
   // Bottom decoration
@@ -393,7 +396,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderLeftWidth: stroke.standard,
     borderTopWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
     zIndex: 10,
   },
   cornerTR: {
@@ -404,7 +407,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRightWidth: stroke.standard,
     borderTopWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
     zIndex: 10,
   },
 });

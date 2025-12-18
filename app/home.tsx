@@ -10,7 +10,7 @@ export const options = {
 };
 
 // Decorative chevron pattern
-function ChevronDecoration({ color = DecoColors.gold, opacity = 0.3 }: { color?: string; opacity?: number }) {
+function ChevronDecoration({ color = DecoColors.mint, opacity = 0.3 }: { color?: string; opacity?: number }) {
   return (
     <View style={[chevronStyles.container, { opacity }]}>
       <View style={[chevronStyles.chevron, { borderColor: color }]} />
@@ -181,12 +181,12 @@ const styles = StyleSheet.create({
   headerLine: {
     width: 30,
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
   headerDiamond: {
     width: 6,
     height: 6,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
     transform: [{ rotate: '45deg' }],
     marginHorizontal: spacing.sm,
   },
@@ -201,12 +201,12 @@ const styles = StyleSheet.create({
   },
   lineTop: {
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
     marginBottom: 4,
   },
   lineBottom: {
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
   subtitle: {
     ...typography.body,
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   optionSelected: {
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
     borderWidth: stroke.standard,
   },
   optionPressed: {
@@ -273,15 +273,15 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
   },
   optionIndicatorActive: {
-    backgroundColor: DecoColors.gold,
-    borderColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
+    borderColor: DecoColors.mint,
   },
   optionText: {
     ...typography.bodyMedium,
     color: DecoColors.text.primary,
   },
   optionTextSelected: {
-    color: DecoColors.gold,
+    color: DecoColors.mint,
   },
   optionAccent: {
     position: 'absolute',
@@ -289,32 +289,33 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 3,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
 
   // Button
   button: {
-    backgroundColor: DecoColors.panel,
+    backgroundColor: DecoColors.mint,
     borderWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
     borderRadius: chamfer.sm,
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.xxl,
     alignItems: 'center',
     marginBottom: spacing.xxl,
-    ...shadows.gold,
+    ...shadows.sage,
   },
   buttonPressed: {
-    backgroundColor: DecoColors.states.pressed,
+    backgroundColor: DecoColors.mintDark,
   },
   buttonDisabled: {
     opacity: 0.4,
+    backgroundColor: DecoColors.panel,
     borderColor: DecoColors.stroke.subtle,
     ...shadows.subtle,
   },
   buttonText: {
     ...typography.button,
-    color: DecoColors.gold,
+    color: DecoColors.teal,
   },
 
   // Bottom decoration
@@ -347,7 +348,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderLeftWidth: stroke.standard,
     borderTopWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
     zIndex: 10,
   },
   cornerTR: {
@@ -358,7 +359,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRightWidth: stroke.standard,
     borderTopWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
     zIndex: 10,
   },
 });

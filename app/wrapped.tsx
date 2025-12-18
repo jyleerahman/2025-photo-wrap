@@ -206,12 +206,12 @@ const styles = StyleSheet.create({
   decorLine: {
     width: 30,
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
   decorDiamond: {
     width: 8,
     height: 8,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
     transform: [{ rotate: '45deg' }],
     marginHorizontal: spacing.md,
   },
@@ -250,8 +250,8 @@ const styles = StyleSheet.create({
     borderColor: DecoColors.stroke.subtle,
   },
   progressDotActive: {
-    backgroundColor: DecoColors.gold,
-    borderColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
+    borderColor: DecoColors.mint,
   },
 
   // Controls
@@ -270,10 +270,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonPrimary: {
-    backgroundColor: DecoColors.panel,
+    backgroundColor: DecoColors.mint,
     borderWidth: stroke.standard,
-    borderColor: DecoColors.gold,
-    ...shadows.gold,
+    borderColor: DecoColors.mint,
+    ...shadows.sage,
   },
   buttonSecondary: {
     backgroundColor: 'transparent',
@@ -281,14 +281,14 @@ const styles = StyleSheet.create({
     borderColor: DecoColors.stroke.subtle,
   },
   buttonPressed: {
-    backgroundColor: DecoColors.states.pressed,
+    backgroundColor: DecoColors.mintDark,
   },
   buttonDisabled: {
     opacity: 0.5,
   },
   buttonPrimaryText: {
     ...typography.button,
-    color: DecoColors.gold,
+    color: DecoColors.teal,
   },
   buttonSecondaryText: {
     ...typography.button,
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     height: 8,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
     transform: [{ rotate: '-45deg' }],
     opacity: 0.6,
   },
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderLeftWidth: stroke.standard,
     borderTopWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
     zIndex: 10,
   },
   cornerTR: {
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRightWidth: stroke.standard,
     borderTopWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
     zIndex: 10,
   },
 });

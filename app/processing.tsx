@@ -61,8 +61,8 @@ const sunburstStyles = StyleSheet.create({
     position: 'absolute',
     width: 1,
     height: 80,
-    backgroundColor: DecoColors.gold,
-    opacity: 0.2,
+    backgroundColor: DecoColors.mint,
+    opacity: 0.25,
   },
 });
 
@@ -125,15 +125,15 @@ const progressStyles = StyleSheet.create({
     transform: [{ rotate: '45deg' }],
   },
   dotActive: {
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
   },
   dotCurrent: {
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
   dotInner: {
     width: 6,
     height: 6,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
   line: {
     width: 40,
@@ -142,7 +142,7 @@ const progressStyles = StyleSheet.create({
     marginHorizontal: spacing.sm,
   },
   lineActive: {
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
 });
 
@@ -197,13 +197,6 @@ export default function ProcessingScreen() {
         return;
       }
 
-      // Count location assets (estimate from sample)
-      const sampleSize = Math.min(100, assets.length);
-      const sampleWithLocation = assets.slice(0, sampleSize);
-      // We'll get accurate count during place computation
-      const locationAssets = 0; // Will be updated
-      const locationCoveragePct = 0; // Will be updated
-
       setProgress(`${totalCount.toLocaleString()} photos found`);
 
       // Create wrapped run
@@ -213,8 +206,8 @@ export default function ProcessingScreen() {
         timeRangeStart: startTime,
         timeRangeEnd: endTime,
         totalAssets: totalCount,
-        locationAssets: 0, // Will update
-        locationCoveragePct: 0, // Will update
+        locationAssets: 0,
+        locationCoveragePct: 0,
         accessPrivileges,
         filtersHash: '',
         algorithmVersion: ALGORITHM_VERSION,
@@ -278,7 +271,6 @@ export default function ProcessingScreen() {
     const cards: CardModel[] = [];
     let order = 0;
 
-    // Helper function to select representative photos
     function selectRepresentatives(assetIds: string[], k: number): string[] {
       if (assetIds.length <= k) return assetIds;
       const selected: string[] = [];
@@ -299,7 +291,7 @@ export default function ProcessingScreen() {
       renderOrder: order,
     });
 
-    // Card 2: Trust / coverage - show sample photos from all photos
+    // Card 2: Trust / coverage
     const trustPhotos = selectRepresentatives(timeStats.allAssetIds, 6);
     cards.push({
       id: `card_${order++}`,
@@ -315,28 +307,23 @@ export default function ProcessingScreen() {
         id: `card_${order++}`,
         wrappedRunId,
         type: 'topPlace1',
-        payload: {
-          place: places[0],
-        },
+        payload: { place: places[0] },
         renderOrder: order,
       });
     }
 
-    // Card 4: Top Places #2-3 - show photos from both places
+    // Card 4: Top Places #2-3
     if (places.length >= 3) {
       cards.push({
         id: `card_${order++}`,
         wrappedRunId,
         type: 'topPlaces23',
-        payload: {
-          place2: places[1],
-          place3: places[2],
-        },
+        payload: { place2: places[1], place3: places[2] },
         renderOrder: order,
       });
     }
 
-    // Card 5: Peak day - show photos from that day
+    // Card 5: Peak day
     if (timeStats.peakDay) {
       const peakDayPhotos = selectRepresentatives(timeStats.peakDay.assetIds, 6);
       cards.push({
@@ -352,7 +339,7 @@ export default function ProcessingScreen() {
       });
     }
 
-    // Card 6: Peak month - show photos from that month
+    // Card 6: Peak month
     if (timeStats.peakMonth) {
       const peakMonthPhotos = selectRepresentatives(timeStats.peakMonth.assetIds, 6);
       cards.push({
@@ -368,7 +355,7 @@ export default function ProcessingScreen() {
       });
     }
 
-    // Card 7: Time of day - show photos from that time window
+    // Card 7: Time of day
     if (timeStats.timeOfDay) {
       const timeOfDayPhotos = selectRepresentatives(timeStats.timeOfDay.assetIds, 6);
       cards.push({
@@ -384,10 +371,9 @@ export default function ProcessingScreen() {
       });
     }
 
-    // Card 8: Distinct places - show photos from various places
+    // Card 8: Distinct places
     if (places.length > 0) {
       const distinctPlacePhotos: string[] = [];
-      // Get 1-2 photos from each of the top places (up to 6 total)
       for (let i = 0; i < Math.min(places.length, 6); i++) {
         const place = places[i];
         if (place.representativeAssetIds.length > 0) {
@@ -488,12 +474,12 @@ const styles = StyleSheet.create({
   headerLine: {
     width: 40,
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
   headerDiamond: {
     width: 8,
     height: 8,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
     transform: [{ rotate: '45deg' }],
     marginHorizontal: spacing.md,
   },
@@ -505,7 +491,7 @@ const styles = StyleSheet.create({
   },
   titleAccent: {
     ...typography.display,
-    color: DecoColors.gold,
+    color: DecoColors.mint,
     textAlign: 'center',
     marginBottom: spacing.lg,
   },
@@ -516,12 +502,12 @@ const styles = StyleSheet.create({
   },
   lineTop: {
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
     marginBottom: 4,
   },
   lineBottom: {
     height: 1,
-    backgroundColor: DecoColors.gold,
+    backgroundColor: DecoColors.mint,
   },
 
   progress: {
@@ -532,7 +518,7 @@ const styles = StyleSheet.create({
 
   errorContainer: {
     marginTop: spacing.xl,
-    backgroundColor: DecoColors.burgundy,
+    backgroundColor: '#6B3A3A',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderRadius: 6,
@@ -552,7 +538,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderLeftWidth: stroke.standard,
     borderTopWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
   },
   cornerTR: {
     position: 'absolute',
@@ -562,7 +548,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRightWidth: stroke.standard,
     borderTopWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
   },
   cornerBL: {
     position: 'absolute',
@@ -572,7 +558,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderLeftWidth: stroke.standard,
     borderBottomWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
   },
   cornerBR: {
     position: 'absolute',
@@ -582,6 +568,6 @@ const styles = StyleSheet.create({
     height: 24,
     borderRightWidth: stroke.standard,
     borderBottomWidth: stroke.standard,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.mint,
   },
 });

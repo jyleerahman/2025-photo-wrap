@@ -152,7 +152,7 @@ export const typography = {
     fontSize: 72,
     lineHeight: 80,
     letterSpacing: 72 * 0.04,
-    color: DecoColors.mint,
+    color: DecoColors.olive,
   } as TextStyle,
   
   // Button text
@@ -275,7 +275,7 @@ export const shadows = {
     shadowRadius: 8,
     elevation: 6,
   },
-  mint: {
+  sage: {
     shadowColor: DecoColors.mint,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,

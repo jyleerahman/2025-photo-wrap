@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xxxl,
     alignItems: 'center',
     marginBottom: spacing.xl,
-    ...shadows.mint,
+    ...shadows.sage,
   },
   buttonPressed: {
     backgroundColor: DecoColors.mintDark,
