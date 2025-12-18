@@ -19,6 +19,20 @@
         "NSLocationWhenInUseUsageDescription": "We use location data from your photos to identify places you've visited."
       }
     },
+    "android": {
+      "package": "com.photowrapped.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#F5E6D3"
+      },
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES",
+        "ACCESS_MEDIA_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
     "plugins": [
       [
         "expo-media-library",
