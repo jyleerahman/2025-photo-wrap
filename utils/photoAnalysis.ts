@@ -73,14 +73,16 @@ export async function getAssetsWithLocation(
         try {
           const info = await MediaLibrary.getAssetInfoAsync(assetId);
           if (info.location) {
-            return {
-              assetId,
-              location: {
-                latitude: info.location.latitude,
-                longitude: info.location.longitude,
-              },
-              creationTime: info.creationTime,
-            };
+            const lat = info.location.latitude;
+            const lon = info.location.longitude;
+            // Validate coordinates are real numbers
+            if (Number.isFinite(lat) && Number.isFinite(lon)) {
+              return {
+                assetId,
+                location: { latitude: lat, longitude: lon },
+                creationTime: info.creationTime,
+              };
+            }
           }
         } catch (error) {
           // Skip assets that can't be loaded
@@ -99,6 +101,11 @@ export async function getAssetsWithLocation(
     
     processed += batch.length;
     onProgress?.(processed, total);
+  }
+  
+  console.log(`[DEBUG] Location extraction: ${results.length} with location out of ${assetIds.length} (${Math.round(results.length / assetIds.length * 100)}%)`);
+  if (results.length > 0) {
+    console.log(`[DEBUG] Sample location: (${results[0].location.latitude}, ${results[0].location.longitude})`);
   }
   
   return results;
@@ -120,12 +127,22 @@ function gridClustering(
   }>();
 
   for (const asset of assetsWithLocation) {
+    const lat = asset.location.latitude;
+    const lon = asset.location.longitude;
+    
+    // Skip invalid coordinates
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      continue;
+    }
+    
     // Quantize to grid cells (roughly 120m at equator)
     const latStep = 120 / 111320; // meters to degrees (rough)
-    const lonStep = 120 / (111320 * Math.cos((asset.location.latitude * Math.PI) / 180));
+    const cosLat = Math.cos((lat * Math.PI) / 180);
+    // Avoid division by zero near poles
+    const lonStep = cosLat > 0.01 ? 120 / (111320 * cosLat) : latStep;
     
-    const cellLat = Math.floor(asset.location.latitude / latStep);
-    const cellLon = Math.floor(asset.location.longitude / lonStep);
+    const cellLat = Math.floor(lat / latStep);
+    const cellLon = Math.floor(lon / lonStep);
     const cellKey = `${cellLat},${cellLon}`;
     
     const dateKey = new Date(asset.creationTime).toDateString();
@@ -134,8 +151,8 @@ function gridClustering(
       cells.set(cellKey, {
         assetIds: [],
         days: new Set(),
-        centroidLat: asset.location.latitude,
-        centroidLon: asset.location.longitude,
+        centroidLat: lat,
+        centroidLon: lon,
       });
     }
     
@@ -144,8 +161,8 @@ function gridClustering(
     cell.days.add(dateKey);
     // Update centroid (simple average)
     const count = cell.assetIds.length;
-    cell.centroidLat = (cell.centroidLat * (count - 1) + asset.location.latitude) / count;
-    cell.centroidLon = (cell.centroidLon * (count - 1) + asset.location.longitude) / count;
+    cell.centroidLat = (cell.centroidLat * (count - 1) + lat) / count;
+    cell.centroidLon = (cell.centroidLon * (count - 1) + lon) / count;
   }
 
   // Convert to clusters and filter
@@ -193,14 +210,21 @@ export async function computeBestPlaces(
   assets: AssetRef[],
   wrappedRunId: string,
   onProgress?: (processed: number, total: number) => void
-): Promise<PlaceCluster[]> {
+): Promise<{
+  clusters: PlaceCluster[];
+  assetsWithLocation: Array<{
+    assetId: string;
+    location: { latitude: number; longitude: number };
+    creationTime: number;
+  }>;
+}> {
   // Scan ALL photos for location data (parallel batched for performance)
   const assetIds = assets.map((a) => a.assetId);
 
   const assetsWithLocation = await getAssetsWithLocation(assetIds, onProgress);
   
   if (assetsWithLocation.length < MIN_PHOTOS_PER_PLACE) {
-    return [];
+    return { clusters: [], assetsWithLocation };
   }
 
   const clusters = gridClustering(assetsWithLocation);
@@ -210,7 +234,7 @@ export async function computeBestPlaces(
     cluster.wrappedRunId = wrappedRunId;
   });
 
-  return clusters;
+  return { clusters, assetsWithLocation };
 }
 
 export async function reverseGeocodePlace(
@@ -218,7 +242,9 @@ export async function reverseGeocodePlace(
   lon: number
 ): Promise<string> {
   try {
+    console.log(`[DEBUG] Calling reverseGeocodeAsync for (${lat}, ${lon})`);
     const result = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lon });
+    console.log(`[DEBUG] Geocode result:`, JSON.stringify(result, null, 2));
     if (result.length > 0) {
       const addr = result[0];
       // Prefer neighborhood/district, then city, then region
@@ -238,8 +264,9 @@ export async function reverseGeocodePlace(
         return addr.country;
       }
     }
+    console.log('[DEBUG] No usable address fields found in result');
   } catch (error) {
-    console.warn('Reverse geocoding failed:', error);
+    console.error('[DEBUG] Reverse geocoding error:', error);
   }
   
   return 'Unknown Place';

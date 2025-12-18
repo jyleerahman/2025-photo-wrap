@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Pressable } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import * as MediaLibrary from 'expo-media-library';
 import type { CardModel, PlaceCluster } from '@/types';
@@ -13,6 +13,7 @@ interface CardProps {
   card: CardModel;
   places?: PlaceCluster[];
   onPlacePress?: (place: PlaceCluster) => void;
+  onPhotoPress?: (uri: string) => void;
 }
 
 // ============================================================================
@@ -286,7 +287,7 @@ const titleStyles = StyleSheet.create({
   },
 });
 
-export function TrustCard({ card }: CardProps) {
+export function TrustCard({ card, onPhotoPress }: CardProps) {
   const { totalPhotos, coveragePct, assetIds = [] } = card.payload;
   const [uris, setUris] = React.useState<string[]>([]);
 
@@ -326,13 +327,17 @@ export function TrustCard({ card }: CardProps) {
         {uris.length > 0 && (
           <View style={trustStyles.photoGrid}>
             {uris.map((uri, index) => (
-              <View key={index} style={trustStyles.photoWrapper}>
+              <Pressable 
+                key={index} 
+                style={({ pressed }) => [trustStyles.photoWrapper, pressed && { opacity: 0.7 }]}
+                onPress={() => onPhotoPress?.(uri)}
+              >
                 <ExpoImage
                   source={{ uri }}
                   style={trustStyles.photo}
                   contentFit="cover"
                 />
-              </View>
+              </Pressable>
             ))}
           </View>
         )}
@@ -382,7 +387,7 @@ const trustStyles = StyleSheet.create({
   },
 });
 
-export function TopPlace1Card({ card, onPlacePress }: CardProps) {
+export function TopPlace1Card({ card, onPlacePress, onPhotoPress }: CardProps) {
   const place: PlaceCluster = card.payload.place;
   const [previewUri, setPreviewUri] = React.useState<string | null>(null);
 
@@ -425,13 +430,16 @@ export function TopPlace1Card({ card, onPlacePress }: CardProps) {
         </View>
         
         {previewUri && (
-          <View style={topPlace1Styles.imageFrame}>
+          <Pressable 
+            style={({ pressed }) => [topPlace1Styles.imageFrame, pressed && { opacity: 0.7 }]}
+            onPress={() => onPhotoPress?.(previewUri)}
+          >
             <ExpoImage
               source={{ uri: previewUri }}
               style={topPlace1Styles.image}
               contentFit="cover"
             />
-          </View>
+          </Pressable>
         )}
       </View>
     </CardFrame>
@@ -488,7 +496,7 @@ const topPlace1Styles = StyleSheet.create({
   },
 });
 
-export function TopPlaces23Card({ card }: CardProps) {
+export function TopPlaces23Card({ card, onPhotoPress }: CardProps) {
   const { place2, place3 } = card.payload;
   const [place2Uris, setPlace2Uris] = React.useState<string[]>([]);
   const [place3Uris, setPlace3Uris] = React.useState<string[]>([]);
@@ -544,9 +552,13 @@ export function TopPlaces23Card({ card }: CardProps) {
           {place2Uris.length > 0 && (
             <View style={places23Styles.placePhotos}>
               {place2Uris.map((uri, index) => (
-                <View key={index} style={places23Styles.photoWrapper}>
+                <Pressable 
+                  key={index} 
+                  style={({ pressed }) => [places23Styles.photoWrapper, pressed && { opacity: 0.7 }]}
+                  onPress={() => onPhotoPress?.(uri)}
+                >
                   <ExpoImage source={{ uri }} style={places23Styles.photo} contentFit="cover" />
-                </View>
+                </Pressable>
               ))}
             </View>
           )}
@@ -568,9 +580,13 @@ export function TopPlaces23Card({ card }: CardProps) {
           {place3Uris.length > 0 && (
             <View style={places23Styles.placePhotos}>
               {place3Uris.map((uri, index) => (
-                <View key={index} style={places23Styles.photoWrapper}>
+                <Pressable 
+                  key={index} 
+                  style={({ pressed }) => [places23Styles.photoWrapper, pressed && { opacity: 0.7 }]}
+                  onPress={() => onPhotoPress?.(uri)}
+                >
                   <ExpoImage source={{ uri }} style={places23Styles.photo} contentFit="cover" />
-                </View>
+                </Pressable>
               ))}
             </View>
           )}
@@ -647,7 +663,7 @@ const places23Styles = StyleSheet.create({
   },
 });
 
-export function PeakDayCard({ card }: CardProps) {
+export function PeakDayCard({ card, onPhotoPress }: CardProps) {
   const { date, count, assetIds = [] } = card.payload;
   const dateStr = formatDate(new Date(date));
   const [uris, setUris] = React.useState<string[]>([]);
@@ -686,9 +702,13 @@ export function PeakDayCard({ card }: CardProps) {
         {uris.length > 0 && (
           <View style={peakDayStyles.photoGrid}>
             {uris.map((uri, index) => (
-              <View key={index} style={peakDayStyles.photoWrapper}>
+              <Pressable 
+                key={index} 
+                style={({ pressed }) => [peakDayStyles.photoWrapper, pressed && { opacity: 0.7 }]}
+                onPress={() => onPhotoPress?.(uri)}
+              >
                 <ExpoImage source={{ uri }} style={peakDayStyles.photo} contentFit="cover" />
-              </View>
+              </Pressable>
             ))}
           </View>
         )}
@@ -736,7 +756,7 @@ const peakDayStyles = StyleSheet.create({
   },
 });
 
-export function PeakMonthCard({ card }: CardProps) {
+export function PeakMonthCard({ card, onPhotoPress }: CardProps) {
   const { month, assetIds = [] } = card.payload;
   const [uris, setUris] = React.useState<string[]>([]);
 
@@ -771,9 +791,13 @@ export function PeakMonthCard({ card }: CardProps) {
         {uris.length > 0 && (
           <View style={peakMonthStyles.photoGrid}>
             {uris.map((uri, index) => (
-              <View key={index} style={peakMonthStyles.photoWrapper}>
+              <Pressable 
+                key={index} 
+                style={({ pressed }) => [peakMonthStyles.photoWrapper, pressed && { opacity: 0.7 }]}
+                onPress={() => onPhotoPress?.(uri)}
+              >
                 <ExpoImage source={{ uri }} style={peakMonthStyles.photo} contentFit="cover" />
-              </View>
+              </Pressable>
             ))}
           </View>
         )}
@@ -813,7 +837,7 @@ const peakMonthStyles = StyleSheet.create({
   },
 });
 
-export function MostExploredMonthCard({ card }: CardProps) {
+export function MostExploredMonthCard({ card, onPhotoPress }: CardProps) {
   const { month, distinctPlaces, assetIds = [] } = card.payload;
   const [uris, setUris] = React.useState<string[]>([]);
 
@@ -853,9 +877,13 @@ export function MostExploredMonthCard({ card }: CardProps) {
         {uris.length > 0 && (
           <View style={mostExploredStyles.photoGrid}>
             {uris.map((uri, index) => (
-              <View key={index} style={mostExploredStyles.photoWrapper}>
+              <Pressable 
+                key={index} 
+                style={({ pressed }) => [mostExploredStyles.photoWrapper, pressed && { opacity: 0.7 }]}
+                onPress={() => onPhotoPress?.(uri)}
+              >
                 <ExpoImage source={{ uri }} style={mostExploredStyles.photo} contentFit="cover" />
-              </View>
+              </Pressable>
             ))}
           </View>
         )}
@@ -871,7 +899,7 @@ const mostExploredStyles = StyleSheet.create({
   },
   month: {
     ...typography.display,
-    color: DecoColors.gold,
+    color: DecoColors.olive,
     textAlign: 'center',
   },
   statRow: {
@@ -881,12 +909,14 @@ const mostExploredStyles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   statNumber: {
-    ...typography.statNumber,
-    color: DecoColors.gold,
+    ...typography.heroNumber,
+    fontSize: 36,
+    lineHeight: 44,
+    color: DecoColors.olive,
   },
   statLabel: {
-    ...typography.statLabel,
-    color: DecoColors.ivory,
+    ...typography.caption,
+    color: DecoColors.cream,
     opacity: 0.8,
   },
   photoGrid: {
@@ -902,7 +932,7 @@ const mostExploredStyles = StyleSheet.create({
     borderRadius: chamfer.sm,
     overflow: 'hidden',
     borderWidth: stroke.hairline,
-    borderColor: DecoColors.gold,
+    borderColor: DecoColors.olive,
   },
   photo: {
     width: '100%',
@@ -910,7 +940,7 @@ const mostExploredStyles = StyleSheet.create({
   },
 });
 
-export function TimeOfDayCard({ card }: CardProps) {
+export function TimeOfDayCard({ card, onPhotoPress }: CardProps) {
   const { window, assetIds = [] } = card.payload;
   const [uris, setUris] = React.useState<string[]>([]);
 
@@ -945,9 +975,13 @@ export function TimeOfDayCard({ card }: CardProps) {
         {uris.length > 0 && (
           <View style={timeStyles.photoGrid}>
             {uris.map((uri, index) => (
-              <View key={index} style={timeStyles.photoWrapper}>
+              <Pressable 
+                key={index} 
+                style={({ pressed }) => [timeStyles.photoWrapper, pressed && { opacity: 0.7 }]}
+                onPress={() => onPhotoPress?.(uri)}
+              >
                 <ExpoImage source={{ uri }} style={timeStyles.photo} contentFit="cover" />
-              </View>
+              </Pressable>
             ))}
           </View>
         )}
@@ -988,7 +1022,7 @@ const timeStyles = StyleSheet.create({
   },
 });
 
-export function DistinctPlacesCard({ card }: CardProps) {
+export function DistinctPlacesCard({ card, onPhotoPress }: CardProps) {
   const { count, assetIds = [] } = card.payload;
   const [uris, setUris] = React.useState<string[]>([]);
 
@@ -1024,9 +1058,13 @@ export function DistinctPlacesCard({ card }: CardProps) {
         {uris.length > 0 && (
           <View style={distinctStyles.photoGrid}>
             {uris.map((uri, index) => (
-              <View key={index} style={distinctStyles.photoWrapper}>
+              <Pressable 
+                key={index} 
+                style={({ pressed }) => [distinctStyles.photoWrapper, pressed && { opacity: 0.7 }]}
+                onPress={() => onPhotoPress?.(uri)}
+              >
                 <ExpoImage source={{ uri }} style={distinctStyles.photo} contentFit="cover" />
-              </View>
+              </Pressable>
             ))}
           </View>
         )}
@@ -1068,7 +1106,7 @@ const distinctStyles = StyleSheet.create({
   },
 });
 
-export function CollageCard({ card }: CardProps) {
+export function CollageCard({ card, onPhotoPress }: CardProps) {
   const { assetIds } = card.payload;
   const [uris, setUris] = React.useState<string[]>([]);
 
@@ -1098,9 +1136,13 @@ export function CollageCard({ card }: CardProps) {
         
         <View style={collageStyles.grid}>
           {uris.map((uri, index) => (
-            <View key={index} style={collageStyles.photoWrapper}>
+            <Pressable 
+              key={index} 
+              style={({ pressed }) => [collageStyles.photoWrapper, pressed && { opacity: 0.7 }]}
+              onPress={() => onPhotoPress?.(uri)}
+            >
               <ExpoImage source={{ uri }} style={collageStyles.photo} contentFit="cover" />
-            </View>
+            </Pressable>
           ))}
         </View>
         

@@ -217,10 +217,13 @@ export default function ProcessingScreen() {
       // Stage B: Best Places
       setStage('places');
       setProgress('Extracting location data...');
-      const places = await computeBestPlaces(assets, wrappedRunId, (processed, total) => {
+      const { clusters: places, assetsWithLocation } = await computeBestPlaces(assets, wrappedRunId, (processed, total) => {
         const pct = Math.round((processed / total) * 100);
         setProgress(`Analyzing locations... ${pct}%`);
       });
+
+      // Compute most explored month from location data
+      const mostExploredMonth = computeMostExploredMonth(assetsWithLocation);
 
       // Update location stats
       const actualLocationAssets = places.reduce((sum, p) => sum + p.photoCount, 0);
@@ -237,15 +240,18 @@ export default function ProcessingScreen() {
       setStage('geocode');
       setProgress('Naming your places...');
       const topPlaces = places.slice(0, 10);
+      console.log(`[DEBUG] Geocoding ${topPlaces.length} places`);
       for (const place of topPlaces) {
+        console.log(`[DEBUG] Place: lat=${place.centroidLat}, lon=${place.centroidLon}, confidence=${place.labelConfidence}, photos=${place.photoCount}`);
         if (place.centroidLat && place.centroidLon && place.labelConfidence === 'low') {
           try {
             const label = await reverseGeocodePlace(place.centroidLat, place.centroidLon);
+            console.log(`[DEBUG] Geocoded result: "${label}"`);
             place.label = label;
             place.labelConfidence = 'medium';
             await savePlaceCluster(place);
           } catch (error) {
-            console.warn('Geocoding failed for place:', error);
+            console.error('[DEBUG] Geocoding FAILED:', error);
           }
         }
       }
@@ -254,7 +260,7 @@ export default function ProcessingScreen() {
       const timeStats = computeTimeStats(assets);
 
       // Generate cards
-      await generateCards(wrappedRunId, places, timeStats, totalCount, wrappedRun.locationCoveragePct);
+      await generateCards(wrappedRunId, places, timeStats, totalCount, wrappedRun.locationCoveragePct, mostExploredMonth);
 
       setStage('complete');
       router.replace({ pathname: '/wrapped', params: { runId: wrappedRunId } });
@@ -269,7 +275,8 @@ export default function ProcessingScreen() {
     places: PlaceCluster[],
     timeStats: ReturnType<typeof computeTimeStats>,
     totalPhotos: number,
-    coveragePct: number
+    coveragePct: number,
+    mostExploredMonth: ReturnType<typeof computeMostExploredMonth>
   ) {
     const cards: CardModel[] = [];
     let order = 0;
@@ -353,6 +360,22 @@ export default function ProcessingScreen() {
           month: timeStats.peakMonth.month, 
           count: timeStats.peakMonth.count,
           assetIds: peakMonthPhotos,
+        },
+        renderOrder: order,
+      });
+    }
+
+    // Card 6b: Most explored month (most distinct places visited)
+    if (mostExploredMonth) {
+      const exploredMonthPhotos = selectRepresentatives(mostExploredMonth.assetIds, 6);
+      cards.push({
+        id: `card_${order++}`,
+        wrappedRunId,
+        type: 'mostExploredMonth',
+        payload: {
+          month: mostExploredMonth.month,
+          distinctPlaces: mostExploredMonth.distinctPlaces,
+          assetIds: exploredMonthPhotos,
         },
         renderOrder: order,
       });

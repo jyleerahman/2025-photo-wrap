@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import PagerView from 'react-native-pager-view';
 import { getCardModels, getPlaceClusters } from '@/utils/database';
 import { CardRenderer } from '@/components/CardRenderer';
+import { PhotoLightbox } from '@/components/PhotoLightbox';
 import { shareCard } from '@/utils/share';
 import type { CardModel, PlaceCluster } from '@/types';
 import { DecoColors } from '@/constants/Colors';
@@ -22,6 +23,7 @@ export default function WrappedScreen() {
   const [places, setPlaces] = useState<PlaceCluster[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [sharing, setSharing] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const pagerRef = useRef<PagerView>(null);
   const cardRefs = useRef<Map<number, React.RefObject<View>>>(new Map());
 
@@ -111,6 +113,7 @@ export default function WrappedScreen() {
               card={card}
               places={places}
               onPlacePress={handlePlacePress}
+              onPhotoPress={setSelectedPhoto}
             />
           </View>
         ))}
@@ -173,6 +176,13 @@ export default function WrappedScreen() {
           </View>
         </View>
       )}
+
+      {/* Photo Lightbox */}
+      <PhotoLightbox
+        visible={selectedPhoto !== null}
+        uri={selectedPhoto}
+        onClose={() => setSelectedPhoto(null)}
+      />
     </View>
   );
 }
@@ -323,27 +333,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
 
-  // Corner ornaments
-  cornerTL: {
-    position: 'absolute',
-    top: 50,
-    left: 16,
-    width: 20,
-    height: 20,
-    borderLeftWidth: stroke.standard,
-    borderTopWidth: stroke.standard,
-    borderColor: DecoColors.mint,
-    zIndex: 10,
-  },
-  cornerTR: {
-    position: 'absolute',
-    top: 50,
-    right: 16,
-    width: 20,
-    height: 20,
-    borderRightWidth: stroke.standard,
-    borderTopWidth: stroke.standard,
-    borderColor: DecoColors.mint,
-    zIndex: 10,
-  },
+  
+  
 });
