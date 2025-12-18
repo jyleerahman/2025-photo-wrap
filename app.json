@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Photo Wrapped",
+    "slug": "photo-wrap-2025",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F5E6D3"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.photowrapped.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "We analyze photo metadata to create your recap. Your photos stay on-device.",
+        "NSLocationWhenInUseUsageDescription": "We use location data from your photos to identify places you've visited."
+      }
+    },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "We analyze photo metadata to create your recap. Your photos stay on-device.",
+          "savePhotosPermission": "Allow Photo Wrapped to save your wrapped cards."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "We use location data from your photos to identify places you've visited."
+        }
+      ],
+      "expo-font"
+    ],
+    "scheme": "photo-wrap",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
