@@ -63,9 +63,6 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Corner ornaments */}
-      <View style={styles.cornerTL} />
-      <View style={styles.cornerTR} />
 
       <ScrollView 
         contentContainerStyle={styles.content}
@@ -338,28 +335,5 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '45deg' }],
     marginHorizontal: spacing.lg,
   },
-
-  // Corner ornaments
-  cornerTL: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    width: 24,
-    height: 24,
-    borderLeftWidth: stroke.standard,
-    borderTopWidth: stroke.standard,
-    borderColor: DecoColors.mint,
-    zIndex: 10,
-  },
-  cornerTR: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    width: 24,
-    height: 24,
-    borderRightWidth: stroke.standard,
-    borderTopWidth: stroke.standard,
-    borderColor: DecoColors.mint,
-    zIndex: 10,
-  },
+ 
 });

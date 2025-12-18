@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Modal,
@@ -7,25 +7,36 @@ import {
   Animated,
   Dimensions,
   StatusBar,
+  FlatList,
+  Text,
 } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { DecoColors } from '@/constants/Colors';
-import { spacing, stroke } from '@/constants/theme';
+import { spacing, stroke, typography } from '@/constants/theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface PhotoLightboxProps {
   visible: boolean;
-  uri: string | null;
+  photos: string[];
+  initialIndex: number;
   onClose: () => void;
 }
 
-export function PhotoLightbox({ visible, uri, onClose }: PhotoLightboxProps) {
+export function PhotoLightbox({ visible, photos, initialIndex, onClose }: PhotoLightboxProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
     if (visible) {
+      setCurrentIndex(initialIndex);
+      // Scroll to initial index after a small delay to ensure FlatList is ready
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({ index: initialIndex, animated: false });
+      }, 50);
+      
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -43,7 +54,7 @@ export function PhotoLightbox({ visible, uri, onClose }: PhotoLightboxProps) {
       fadeAnim.setValue(0);
       scaleAnim.setValue(0.9);
     }
-  }, [visible]);
+  }, [visible, initialIndex]);
 
   const handleClose = () => {
     Animated.parallel([
@@ -62,7 +73,36 @@ export function PhotoLightbox({ visible, uri, onClose }: PhotoLightboxProps) {
     });
   };
 
-  if (!uri) return null;
+  const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
+    if (viewableItems.length > 0) {
+      setCurrentIndex(viewableItems[0].index);
+    }
+  }).current;
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50,
+  }).current;
+
+  if (photos.length === 0) return null;
+
+  const renderPhoto = ({ item: uri }: { item: string }) => (
+    <View style={styles.photoPage}>
+      <Pressable style={styles.photoTouchArea} onPress={handleClose}>
+        <View style={styles.frame}>
+          <View style={styles.frameCornerTL} />
+          <View style={styles.frameCornerTR} />
+          <View style={styles.frameCornerBL} />
+          <View style={styles.frameCornerBR} />
+          
+          <ExpoImage
+            source={{ uri }}
+            style={styles.image}
+            contentFit="contain"
+          />
+        </View>
+      </Pressable>
+    </View>
+  );
 
   return (
     <Modal
@@ -73,7 +113,7 @@ export function PhotoLightbox({ visible, uri, onClose }: PhotoLightboxProps) {
       onRequestClose={handleClose}
     >
       <StatusBar backgroundColor="rgba(0,0,0,0.95)" barStyle="light-content" />
-      <Pressable style={styles.backdrop} onPress={handleClose}>
+      <View style={styles.backdrop}>
         <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
           {/* Art Deco corner ornaments */}
           <View style={styles.cornerTL} />
@@ -82,43 +122,70 @@ export function PhotoLightbox({ visible, uri, onClose }: PhotoLightboxProps) {
           <View style={styles.cornerBR} />
 
           {/* Close hint */}
-          <Animated.View style={[styles.closeHint, { opacity: fadeAnim }]}>
+          <Pressable style={styles.closeHint} onPress={handleClose}>
             <View style={styles.closeHintLine} />
             <View style={styles.closeHintDiamond} />
             <View style={styles.closeHintLine} />
-          </Animated.View>
+          </Pressable>
 
-          {/* Photo container */}
+          {/* Photo carousel */}
           <Animated.View
             style={[
-              styles.imageContainer,
+              styles.carouselContainer,
               {
                 opacity: fadeAnim,
                 transform: [{ scale: scaleAnim }],
               },
             ]}
           >
-            {/* Photo frame */}
-            <View style={styles.frame}>
-              <View style={styles.frameCornerTL} />
-              <View style={styles.frameCornerTR} />
-              <View style={styles.frameCornerBL} />
-              <View style={styles.frameCornerBR} />
-              
-              <ExpoImage
-                source={{ uri }}
-                style={styles.image}
-                contentFit="contain"
-              />
-            </View>
+            <FlatList
+              ref={flatListRef}
+              data={photos}
+              renderItem={renderPhoto}
+              keyExtractor={(item, index) => `${item}-${index}`}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onViewableItemsChanged={onViewableItemsChanged}
+              viewabilityConfig={viewabilityConfig}
+              getItemLayout={(_, index) => ({
+                length: SCREEN_WIDTH,
+                offset: SCREEN_WIDTH * index,
+                index,
+              })}
+              initialScrollIndex={initialIndex}
+              onScrollToIndexFailed={(info) => {
+                // Fallback if scroll fails
+                setTimeout(() => {
+                  flatListRef.current?.scrollToIndex({ index: info.index, animated: false });
+                }, 100);
+              }}
+            />
           </Animated.View>
 
-          {/* Tap to close hint at bottom */}
-          <Animated.View style={[styles.tapHint, { opacity: fadeAnim }]}>
-            <View style={styles.tapHintDot} />
-          </Animated.View>
+          {/* Page indicator */}
+          {photos.length > 1 && (
+            <Animated.View style={[styles.pageIndicator, { opacity: fadeAnim }]}>
+              <View style={styles.pageIndicatorLine} />
+              <View style={styles.pageIndicatorContent}>
+                <Text style={styles.pageIndicatorText}>
+                  {currentIndex + 1} / {photos.length}
+                </Text>
+              </View>
+              <View style={styles.pageIndicatorLine} />
+            </Animated.View>
+          )}
+
+          {/* Swipe hint at bottom */}
+          {photos.length > 1 && (
+            <Animated.View style={[styles.swipeHint, { opacity: fadeAnim }]}>
+              <View style={styles.swipeArrow} />
+              <Text style={styles.swipeHintText}>SWIPE</Text>
+              <View style={[styles.swipeArrow, { transform: [{ rotate: '180deg' }] }]} />
+            </Animated.View>
+          )}
         </Animated.View>
-      </Pressable>
+      </View>
     </Modal>
   );
 }
@@ -132,13 +199,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(10, 18, 18, 0.97)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing.xl,
   },
-  imageContainer: {
-    width: SCREEN_WIDTH - spacing.xl * 2,
+  carouselContainer: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT * 0.7,
+  },
+  photoPage: {
+    width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT * 0.7,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  photoTouchArea: {
+    width: '100%',
+    height: '100%',
   },
   frame: {
     width: '100%',
@@ -200,6 +275,8 @@ const styles = StyleSheet.create({
     top: 60,
     flexDirection: 'row',
     alignItems: 'center',
+    zIndex: 10,
+    padding: spacing.md,
   },
   closeHintLine: {
     width: 30,
@@ -216,16 +293,49 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 
-  // Tap hint at bottom
-  tapHint: {
+  // Page indicator
+  pageIndicator: {
+    position: 'absolute',
+    bottom: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  pageIndicatorLine: {
+    width: 20,
+    height: 1,
+    backgroundColor: DecoColors.mint,
+    opacity: 0.4,
+  },
+  pageIndicatorContent: {
+    paddingHorizontal: spacing.md,
+  },
+  pageIndicatorText: {
+    ...typography.caption,
+    color: DecoColors.mint,
+    letterSpacing: 2,
+  },
+
+  // Swipe hint at bottom
+  swipeHint: {
     position: 'absolute',
     bottom: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
-  tapHintDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: DecoColors.mint,
+  swipeHintText: {
+    ...typography.caption,
+    color: DecoColors.text.muted,
+    opacity: 0.5,
+    letterSpacing: 2,
+  },
+  swipeArrow: {
+    width: 8,
+    height: 8,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: DecoColors.mint,
+    transform: [{ rotate: '-45deg' }],
     opacity: 0.4,
   },
 
@@ -271,4 +381,3 @@ const styles = StyleSheet.create({
     borderColor: DecoColors.stroke.subtle,
   },
 });
-

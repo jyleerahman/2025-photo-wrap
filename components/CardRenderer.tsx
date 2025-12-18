@@ -17,7 +17,7 @@ interface CardRendererProps {
   card: CardModel;
   places?: PlaceCluster[];
   onPlacePress?: (place: PlaceCluster) => void;
-  onPhotoPress?: (uri: string) => void;
+  onPhotoPress?: (photos: string[], initialIndex: number) => void;
 }
 
 export function CardRenderer({ card, places, onPlacePress, onPhotoPress }: CardRendererProps) {

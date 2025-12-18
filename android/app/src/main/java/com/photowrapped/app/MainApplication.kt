@@ -1,4 +1,4 @@
-package com.photowrapped
+package com.photowrapped.app
 
 import android.app.Application
 import android.content.res.Configuration

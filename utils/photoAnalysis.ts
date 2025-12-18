@@ -55,15 +55,39 @@ export async function getAssetsWithLocation(
     creationTime: number;
   }>
 > {
+  // Check permissions first
+  const locationPermission = await Location.getForegroundPermissionsAsync();
+  console.log(`[DEBUG] Location permission status: ${locationPermission.status}`);
+  
+  const mediaPermission = await MediaLibrary.getPermissionsAsync();
+  console.log(`[DEBUG] Media library permission: status=${mediaPermission.status}, accessPrivileges=${mediaPermission.accessPrivileges}`);
+  
+  // Test first asset to see full structure
+  if (assetIds.length > 0) {
+    try {
+      console.log(`[DEBUG] Testing first asset: ${assetIds[0]}`);
+      const testInfo = await MediaLibrary.getAssetInfoAsync(assetIds[0]);
+      console.log(`[DEBUG] First asset full info:`, JSON.stringify(testInfo, null, 2));
+    } catch (error) {
+      console.error(`[DEBUG] Failed to load first asset:`, error);
+    }
+  }
+  
   const results: Array<{
     assetId: string;
     location: { latitude: number; longitude: number };
     creationTime: number;
   }> = [];
   
-  const BATCH_SIZE = 20; // Process 20 photos in parallel at a time
+  const BATCH_SIZE = 10; // Process 10 photos in parallel (reduced for iCloud fetching)
   const total = assetIds.length;
   let processed = 0;
+  
+  // Enhanced debugging
+  let successCount = 0;
+  let noLocationCount = 0;
+  let errorCount = 0;
+  let invalidCoordCount = 0;
   
   for (let i = 0; i < assetIds.length; i += BATCH_SIZE) {
     const batch = assetIds.slice(i, i + BATCH_SIZE);
@@ -71,22 +95,38 @@ export async function getAssetsWithLocation(
     const batchResults = await Promise.all(
       batch.map(async (assetId) => {
         try {
-          const info = await MediaLibrary.getAssetInfoAsync(assetId);
+          // shouldDownloadFromNetwork: true fetches metadata from iCloud if not local
+          const info = await MediaLibrary.getAssetInfoAsync(assetId, {
+            shouldDownloadFromNetwork: true,
+          });
+          
+          // Debug first few assets
+          if (i === 0 && batch.indexOf(assetId) < 3) {
+            console.log(`[DEBUG] Sample asset ${batch.indexOf(assetId)}: location=${JSON.stringify(info.location)}, creationTime=${info.creationTime}`);
+          }
+          
           if (info.location) {
             const lat = info.location.latitude;
             const lon = info.location.longitude;
             // Validate coordinates are real numbers
             if (Number.isFinite(lat) && Number.isFinite(lon)) {
+              successCount++;
               return {
                 assetId,
                 location: { latitude: lat, longitude: lon },
                 creationTime: info.creationTime,
               };
+            } else {
+              invalidCoordCount++;
             }
+          } else {
+            noLocationCount++;
           }
         } catch (error) {
-          // Skip assets that can't be loaded
-          console.warn(`Failed to load asset ${assetId}:`, error);
+          errorCount++;
+          if (i === 0 && batch.indexOf(assetId) < 3) {
+            console.error(`[DEBUG] Error loading asset ${batch.indexOf(assetId)}:`, error);
+          }
         }
         return null;
       })
@@ -104,6 +144,7 @@ export async function getAssetsWithLocation(
   }
   
   console.log(`[DEBUG] Location extraction: ${results.length} with location out of ${assetIds.length} (${Math.round(results.length / assetIds.length * 100)}%)`);
+  console.log(`[DEBUG] Breakdown: ${successCount} success, ${noLocationCount} no location, ${invalidCoordCount} invalid coords, ${errorCount} errors`);
   if (results.length > 0) {
     console.log(`[DEBUG] Sample location: (${results[0].location.latitude}, ${results[0].location.longitude})`);
   }

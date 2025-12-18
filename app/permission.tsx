@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as MediaLibrary from 'expo-media-library';
+import * as Location from 'expo-location';
 import { DecoColors } from '@/constants/Colors';
 import { typography, spacing, chamfer, stroke, shadows } from '@/constants/theme';
 
@@ -103,11 +104,13 @@ export default function PermissionScreen() {
   async function requestPermission() {
     setLoading(true);
     try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
+      // Request photo library permission
+      const { status: mediaStatus, accessPrivileges } = await MediaLibrary.requestPermissionsAsync();
       
-      if (status === 'granted' || status === 'limited') {
-        router.replace('/home');
-      } else {
+      // Check for full or limited access (iOS 14+ limited library access)
+      const hasPhotoAccess = mediaStatus === 'granted' || accessPrivileges === 'limited';
+      
+      if (!hasPhotoAccess) {
         Alert.alert(
           'Permission Required',
           'Photo access is needed to create your wrapped. You can enable it in Settings.',
@@ -116,7 +119,32 @@ export default function PermissionScreen() {
             { text: 'Open Settings', onPress: () => Linking.openSettings() },
           ]
         );
+        return;
       }
+      
+      // Request location permission (needed to read GPS metadata from photos on iOS)
+      const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
+      
+      if (locationStatus !== 'granted') {
+        // Location is optional but recommended - show a note and continue anyway
+        Alert.alert(
+          'Location Access',
+          'Location permission helps us show your top places. Without it, place analysis will be limited.',
+          [
+            { 
+              text: 'Continue Anyway', 
+              onPress: () => router.replace('/home'),
+            },
+            { 
+              text: 'Open Settings', 
+              onPress: () => Linking.openSettings(),
+            },
+          ]
+        );
+        return;
+      }
+      
+      router.replace('/home');
     } catch (error) {
       console.error('Permission error:', error);
       Alert.alert('Error', 'Failed to request permission');
@@ -161,6 +189,7 @@ export default function PermissionScreen() {
         
         <Text style={styles.description}>
           We analyze photo metadata to create your personal recap.{'\n'}
+          Location access is needed to show your top places.{'\n'}
           All processing happens on your device.
         </Text>
 

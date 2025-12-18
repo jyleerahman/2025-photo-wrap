@@ -13,7 +13,7 @@ interface CardProps {
   card: CardModel;
   places?: PlaceCluster[];
   onPlacePress?: (place: PlaceCluster) => void;
-  onPhotoPress?: (uri: string) => void;
+  onPhotoPress?: (photos: string[], initialIndex: number) => void;
 }
 
 // ============================================================================
@@ -330,7 +330,7 @@ export function TrustCard({ card, onPhotoPress }: CardProps) {
               <Pressable 
                 key={index} 
                 style={({ pressed }) => [trustStyles.photoWrapper, pressed && { opacity: 0.7 }]}
-                onPress={() => onPhotoPress?.(uri)}
+                onPress={() => onPhotoPress?.(uris, index)}
               >
                 <ExpoImage
                   source={{ uri }}
@@ -432,7 +432,7 @@ export function TopPlace1Card({ card, onPlacePress, onPhotoPress }: CardProps) {
         {previewUri && (
           <Pressable 
             style={({ pressed }) => [topPlace1Styles.imageFrame, pressed && { opacity: 0.7 }]}
-            onPress={() => onPhotoPress?.(previewUri)}
+            onPress={() => onPhotoPress?.([previewUri], 0)}
           >
             <ExpoImage
               source={{ uri: previewUri }}
@@ -555,7 +555,7 @@ export function TopPlaces23Card({ card, onPhotoPress }: CardProps) {
                 <Pressable 
                   key={index} 
                   style={({ pressed }) => [places23Styles.photoWrapper, pressed && { opacity: 0.7 }]}
-                  onPress={() => onPhotoPress?.(uri)}
+                  onPress={() => onPhotoPress?.(place2Uris, index)}
                 >
                   <ExpoImage source={{ uri }} style={places23Styles.photo} contentFit="cover" />
                 </Pressable>
@@ -583,7 +583,7 @@ export function TopPlaces23Card({ card, onPhotoPress }: CardProps) {
                 <Pressable 
                   key={index} 
                   style={({ pressed }) => [places23Styles.photoWrapper, pressed && { opacity: 0.7 }]}
-                  onPress={() => onPhotoPress?.(uri)}
+                  onPress={() => onPhotoPress?.(place3Uris, index)}
                 >
                   <ExpoImage source={{ uri }} style={places23Styles.photo} contentFit="cover" />
                 </Pressable>
@@ -705,7 +705,7 @@ export function PeakDayCard({ card, onPhotoPress }: CardProps) {
               <Pressable 
                 key={index} 
                 style={({ pressed }) => [peakDayStyles.photoWrapper, pressed && { opacity: 0.7 }]}
-                onPress={() => onPhotoPress?.(uri)}
+                onPress={() => onPhotoPress?.(uris, index)}
               >
                 <ExpoImage source={{ uri }} style={peakDayStyles.photo} contentFit="cover" />
               </Pressable>
@@ -794,7 +794,7 @@ export function PeakMonthCard({ card, onPhotoPress }: CardProps) {
               <Pressable 
                 key={index} 
                 style={({ pressed }) => [peakMonthStyles.photoWrapper, pressed && { opacity: 0.7 }]}
-                onPress={() => onPhotoPress?.(uri)}
+                onPress={() => onPhotoPress?.(uris, index)}
               >
                 <ExpoImage source={{ uri }} style={peakMonthStyles.photo} contentFit="cover" />
               </Pressable>
@@ -880,7 +880,7 @@ export function MostExploredMonthCard({ card, onPhotoPress }: CardProps) {
               <Pressable 
                 key={index} 
                 style={({ pressed }) => [mostExploredStyles.photoWrapper, pressed && { opacity: 0.7 }]}
-                onPress={() => onPhotoPress?.(uri)}
+                onPress={() => onPhotoPress?.(uris, index)}
               >
                 <ExpoImage source={{ uri }} style={mostExploredStyles.photo} contentFit="cover" />
               </Pressable>
@@ -978,7 +978,7 @@ export function TimeOfDayCard({ card, onPhotoPress }: CardProps) {
               <Pressable 
                 key={index} 
                 style={({ pressed }) => [timeStyles.photoWrapper, pressed && { opacity: 0.7 }]}
-                onPress={() => onPhotoPress?.(uri)}
+                onPress={() => onPhotoPress?.(uris, index)}
               >
                 <ExpoImage source={{ uri }} style={timeStyles.photo} contentFit="cover" />
               </Pressable>
@@ -1061,7 +1061,7 @@ export function DistinctPlacesCard({ card, onPhotoPress }: CardProps) {
               <Pressable 
                 key={index} 
                 style={({ pressed }) => [distinctStyles.photoWrapper, pressed && { opacity: 0.7 }]}
-                onPress={() => onPhotoPress?.(uri)}
+                onPress={() => onPhotoPress?.(uris, index)}
               >
                 <ExpoImage source={{ uri }} style={distinctStyles.photo} contentFit="cover" />
               </Pressable>
@@ -1139,7 +1139,7 @@ export function CollageCard({ card, onPhotoPress }: CardProps) {
             <Pressable 
               key={index} 
               style={({ pressed }) => [collageStyles.photoWrapper, pressed && { opacity: 0.7 }]}
-              onPress={() => onPhotoPress?.(uri)}
+              onPress={() => onPhotoPress?.(uris, index)}
             >
               <ExpoImage source={{ uri }} style={collageStyles.photo} contentFit="cover" />
             </Pressable>

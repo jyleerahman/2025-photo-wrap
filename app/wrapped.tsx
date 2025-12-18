@@ -23,7 +23,8 @@ export default function WrappedScreen() {
   const [places, setPlaces] = useState<PlaceCluster[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [sharing, setSharing] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [lightboxPhotos, setLightboxPhotos] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const pagerRef = useRef<PagerView>(null);
   const cardRefs = useRef<Map<number, React.RefObject<View>>>(new Map());
 
@@ -49,6 +50,16 @@ export default function WrappedScreen() {
       pathname: '/place-detail',
       params: { placeId: place.id, runId },
     });
+  }
+
+  function handlePhotoPress(photos: string[], initialIndex: number) {
+    setLightboxPhotos(photos);
+    setLightboxIndex(initialIndex);
+  }
+
+  function handleCloseLightbox() {
+    setLightboxPhotos([]);
+    setLightboxIndex(0);
   }
 
   async function handleShare() {
@@ -97,10 +108,6 @@ export default function WrappedScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Corner ornaments */}
-      <View style={styles.cornerTL} />
-      <View style={styles.cornerTR} />
-      
       <PagerView
         ref={pagerRef}
         style={styles.pager}
@@ -113,7 +120,7 @@ export default function WrappedScreen() {
               card={card}
               places={places}
               onPlacePress={handlePlacePress}
-              onPhotoPress={setSelectedPhoto}
+              onPhotoPress={handlePhotoPress}
             />
           </View>
         ))}
@@ -179,9 +186,10 @@ export default function WrappedScreen() {
 
       {/* Photo Lightbox */}
       <PhotoLightbox
-        visible={selectedPhoto !== null}
-        uri={selectedPhoto}
-        onClose={() => setSelectedPhoto(null)}
+        visible={lightboxPhotos.length > 0}
+        photos={lightboxPhotos}
+        initialIndex={lightboxIndex}
+        onClose={handleCloseLightbox}
       />
     </View>
   );
@@ -332,7 +340,4 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-45deg' }],
     opacity: 0.6,
   },
-
-  
-  
 });

@@ -22,7 +22,7 @@ export default function PlaceDetailScreen() {
   const [place, setPlace] = useState<PlaceCluster | null>(null);
   const [imageUris, setImageUris] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 
   useEffect(() => {
     loadPlace();
@@ -135,7 +135,7 @@ export default function PlaceDetailScreen() {
                   styles.imageWrapper,
                   pressed && styles.imagePressed,
                 ]}
-                onPress={() => setSelectedPhoto(uri)}
+                onPress={() => setSelectedPhotoIndex(index)}
               >
                 <ExpoImage
                   source={{ uri }}
@@ -182,9 +182,10 @@ export default function PlaceDetailScreen() {
 
       {/* Photo Lightbox */}
       <PhotoLightbox
-        visible={selectedPhoto !== null}
-        uri={selectedPhoto}
-        onClose={() => setSelectedPhoto(null)}
+        visible={selectedPhotoIndex !== null}
+        photos={imageUris}
+        initialIndex={selectedPhotoIndex ?? 0}
+        onClose={() => setSelectedPhotoIndex(null)}
       />
     </View>
   );
